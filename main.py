@@ -5,47 +5,56 @@ import matplotlib.pyplot as plt
 
 LIM = 1
 
+
 def create_figure():
-    fig = plt.figure(figsize=(8, 8))
-    ax  = fig.add_subplot(1, 1, 1)
-
-    # Move left y-axis and bottim x-axis to centre, passing through (0,0)
-    ax.spines['left'].set_position('center')
-    ax.spines['bottom'].set_position('center')
-
-    # Eliminate upper and right axes
-    ax.spines['right'].set_color('none')
-    ax.spines['top'].set_color('none')
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8))
 
     # Show ticks in the left and lower axes only
     plt.xticks([])
     plt.yticks([])
-    ax.set_xticks([])
-    ax.set_yticks([])
+    ax1.set_yticks([]), ax2.set_yticks([])
+    ax1.set_xticks([]), ax2.set_yticks([])
     
     # Set limits to x and y axis
-    ax.set_xlim(-LIM, LIM)
-    ax.set_ylim(-LIM, LIM)
+    ax1.set_xlim(0, LIM), ax2.set_xlim(0, LIM)
+    ax1.set_ylim(0, LIM), ax2.set_ylim(0, LIM)
     
-    return fig, ax
+    return ax1, ax2
 
 
-def add_particle(ax, coords0, v=0):
-    # Draw particle with constant velocity and its light cone
-    x0, t0 = coords0
-    ax.plot([x0, x0 + v], [t0, t0+1], 'k-')
+def draw_trajectory(ax, coords0, v, u, color='k', marker='_', draw_point=False):
+    # Transform coordinates using Lorentz boost
+    x0, t0 = lorentz_boost(coords0, v_rel=v)
+    coordsf = [x0 + u*LIM, t0 + LIM]
+    xf, tf = lorentz_boost(coordsf, v_rel=v)
     
-    ax.plot([x0, x0 + c], [t0, t0+1], 'r-')
-    ax.plot([x0, x0 - c], [t0, t0+1], 'r-')
+    xf, tf = [x0 + u*LIM, t0 + LIM]
     
-    ax.plot(x0, t0, 'ko')
+    ax.plot([x0, xf], [t0, tf], color=color, marker=marker)
+    
+    if draw_point:
+        ax.plot(x0, t0, 'ko')
+
+
+def add_particle(axis, coords0, u):
+    v_rel   = [0, -.3]
+    
+    for ax, v in zip(axis, v_rel):
+        # Draw light cone
+        draw_trajectory(ax, coords0, v=v, u=+c, color='r')
+        draw_trajectory(ax, coords0, v=v, u=-c, color='r')
+        
+        # Draw trajectory
+        draw_trajectory(ax, coords0, v=v, u=u-v, draw_point=True)
 
 
 def main():
-    fig, ax = create_figure()
-    add_particle(ax, [0.2, 0])
-    plt.savefig("test.png")
-    
-if __name__ == "__main__":
+    ax1, ax2 = create_figure()
+    add_particle([ax1, ax2], [0.2, .05], u=0)
+    add_particle([ax1, ax2], [0.7, .05], u=0)
+    plt.savefig('test.png')
+
+
+if __name__ == '__main__':
     main()
     
