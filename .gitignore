@@ -1,9 +1,9 @@
-# Python dependencies
-*.pyc
-
 # Enviromental variables and virtual environment
 env/
 .env
+
+# Python dependencies
+*.pyc
 
 # Test files
 *.png
