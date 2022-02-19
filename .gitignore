@@ -4,3 +4,6 @@
 # Enviromental variables and virtual environment
 env/
 .env
+
+# Test files
+*.png
